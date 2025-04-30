@@ -344,7 +344,7 @@ The sequence of steps:
    Execute this script using Docker command:
 
     ```python
-    docker run -e HOST=<HOST> -e PORT=<PORT> -e PASSWORD=<PASSWORD> abhishekcoder/sample_trading_data_model:report
+    docker run -e HOST=<HOST> -e PORT=<PORT> -e PASSWORD=<PASSWORD> abhishekcoder/securities_portfolio_app:report
     ```
 
 ******************************************************
