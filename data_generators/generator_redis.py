@@ -27,16 +27,31 @@ def generate_investor_account_data():
             accountNo = accountIdPrefix + str(accs)
             name = fake.name()
             address = fake.address()
+            aadhaar_id = fake.aadhaar_id()
+            email = fake.email()
+            phone = fake.phone_number()
+            pan = fake.bothify("?????####?")
+
+            accountOpenDate = str(fake.date_between(start_date='-3y', end_date='-2y'))
+
             investor = {
-                "id": investorId, "name": name, "uid": fake.aadhaar_id(),
-                "pan": fake.bothify("?????####?"), "email": fake.email(), "phone": fake.phone_number(),
+                "id": investorId,
+                "name": name,
+                "uid": aadhaar_id,
+                "pan": pan,
+                "email": email,
+                "phone": phone,
                 "address": address
             }
             account = {
-                "id": accountNo, "investorId": investorId, "accountNo": accountNo,
-                "accountOpenDate": str(fake.date_between(start_date='-3y', end_date='-2y')),
-                "accountCloseDate": '', "retailInvestor": True
+                "id": accountNo,
+                "investorId": investorId,
+                "accountNo": accountNo,
+                "accountOpenDate": accountOpenDate,
+                "accountCloseDate": '',
+                "retailInvestor": True
             }
+
             conn.json().set("trading:investor:" + investorId, "$", investor)
             conn.json().set("trading:account:" + accountNo, "$", account)
             generate_trading_data(conn, accountNo)
@@ -58,13 +73,13 @@ def generate_trading_data(conn, accountNo):
         pipeline = conn.pipeline()
 
         for i, row in df.iterrows():
-            chance = 10
+            chance = 5
             try:
                 securityLotPrefix = "trading:securitylot:" + accountNo + ":"
                 buy = fake.boolean(chance_of_getting_true=chance)
                 chance = chance - 1
                 if chance < 0:
-                    chance = 10
+                    chance = 5
                 if buy:
                     dateInUnix = int(time.mktime(time.strptime(row['Date '], "%d-%b-%Y")))
                     buyingPrice = float(str(row['OPEN ']).replace(',', '')) * 100
@@ -76,12 +91,18 @@ def generate_trading_data(conn, accountNo):
                     desc = f"{row['Date ']}: {quantity} {ticker} stocks having unit price of INR {buyingPrice/100} credited to accountNo {accountNo}. The transaction value is INR {lotVal/100}"
 
                     securityLot = {
-                        "id": secLotId, "accountNo": accountNo, "ticker": ticker,
-                        "date": dateInUnix, "price": buyingPrice, "quantity": quantity,
-                        "lotValue": lotVal, "type": "EQUITY",
+                        "id": secLotId,
+                        "accountNo": accountNo,
+                        "ticker": ticker,
+                        "date": dateInUnix,
+                        "price": buyingPrice,
+                        "quantity": quantity,
+                        "lotValue": lotVal,
+                        "type": "EQUITY",
                         "desc": desc,
                         "embeddings": False
                     }
+
                     pipeline.json().set(securityLotPrefix + secLotId, "$", securityLot)
                     count += 1
                     if count >= 100:

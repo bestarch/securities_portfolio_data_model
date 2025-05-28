@@ -7,3 +7,4 @@ Flask==3.0.2
 flask-sock==0.5.2
 jproperties==2.1.1
 mysql-connector-python==8.2.0
+psycopg2-binary
